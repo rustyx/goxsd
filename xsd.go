@@ -136,10 +136,11 @@ type xsdExtension struct {
 }
 
 type xsdAttribute struct {
-	Name       string `xml:"name,attr"`
-	Type       string `xml:"type,attr"`
-	Use        string `xml:"use,attr"`
-	Annotation string `xml:"annotation>documentation"`
+	Name       string         `xml:"name,attr"`
+	Type       string         `xml:"type,attr"`
+	Use        string         `xml:"use,attr"`
+	Annotation string         `xml:"annotation>documentation"`
+	SimpleType *xsdSimpleType `xml:"simpleType"`
 }
 
 type xsdSimpleType struct {

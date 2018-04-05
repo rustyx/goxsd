@@ -83,7 +83,7 @@ type titleList struct {
 type title struct {
 	Language string ` + "`xml:\"language,attr\"`" + `
 	Original bool ` + "`xml:\"original,attr\"`" + `
-	Title    string ` + "`xml:\",chardata\"`" + `
+	Title    string ` + "`xml:\",cdata\"`" + `
 }
 
 				`,
@@ -140,7 +140,7 @@ type tagList struct {
 
 type tag struct {
 	Type string ` + "`xml:\"type,attr\"`" + `
-	Tag string ` + "`xml:\",chardata\"`" + `
+	Tag string ` + "`xml:\",cdata\"`" + `
 }
 			`,
 		},
@@ -170,7 +170,7 @@ type tag struct {
 			gosrc: `
 type tagID struct {
 	Type string ` + "`xml:\"type,attr\"`" + `
-	TagID string ` + "`xml:\",chardata\"`" + `
+	TagID string ` + "`xml:\",cdata\"`" + `
 }
 			`,
 		},
@@ -200,7 +200,7 @@ type tagID struct {
 			gosrc: `
 type XxxURL struct {
 	Type string ` + "`xml:\"type,attr\"`" + `
-	URL string ` + "`xml:\",chardata\"`" + `
+	URL string ` + "`xml:\",cdata\"`" + `
 }
 			`,
 		},

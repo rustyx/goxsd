@@ -88,8 +88,9 @@ type xmlTree struct {
 }
 
 type xmlAttrib struct {
-	Name string
-	Type string
+	Name      string
+	Type      string
+	OmitEmpty bool
 }
 
 type builder struct {
@@ -152,7 +153,10 @@ func (b *builder) buildFromElement(e xsdElement) *xmlTree {
 		case xsdSimpleType:
 			b.buildFromSimpleType(xelem, t)
 		case string:
-			xelem.Type = t
+			// xelem.Type = t
+			b.buildFromSimpleType(xelem, xsdSimpleType{
+				Restriction: xsdRestriction{Base: t},
+			})
 		}
 		return xelem
 	}
@@ -282,9 +286,15 @@ func (b *builder) buildFromAttributes(xelem *xmlTree, attrs []xsdAttribute) {
 			// If Restriction.Base is a simpleType or complexType, we panic
 			attr.Type = b.findType(t.Restriction.Base).(string)
 		case string:
-			// If empty, then simpleType is present as content, but we ignore
-			// that now
+			if a.SimpleType != nil {
+				t = b.findType(a.SimpleType.Restriction.Base).(string)
+			}
+
 			attr.Type = t
+		}
+
+		if a.Use == "optional" {
+			attr.OmitEmpty = true
 		}
 
 		xelem.Attribs = append(xelem.Attribs, attr)
@@ -318,6 +328,8 @@ func (b *builder) findType(name string) interface{} {
 		return "float64"
 	case "dateTime", "date":
 		return "time.Time"
+	case "time":
+		return "DurationType"
 	default:
 		return name
 	}
