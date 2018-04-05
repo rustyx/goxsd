@@ -111,6 +111,7 @@ type xsdComplexType struct {
 	Attributes     []xsdAttribute     `xml:"attribute"`
 	ComplexContent *xsdComplexContent `xml:"complexContent"`
 	SimpleContent  *xsdSimpleContent  `xml:"simpleContent"`
+	Choice         []xsdElement       `xml:"choice>element"`
 }
 
 type xsdComplexContent struct {
@@ -127,6 +128,7 @@ type xsdExtension struct {
 	Base       string         `xml:"base,attr"`
 	Attributes []xsdAttribute `xml:"attribute"`
 	Sequence   []xsdElement   `xml:"sequence>element"`
+	All        []xsdElement   `xml:"all>element"`
 }
 
 type xsdAttribute struct {
