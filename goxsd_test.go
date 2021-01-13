@@ -9,12 +9,6 @@ import (
 	"github.com/kr/pretty"
 )
 
-type testCase struct {
-	xsd   string
-	xml   xmlTree
-	gosrc string
-}
-
 var (
 	tests = []struct {
 		exported bool
@@ -32,6 +26,7 @@ var (
 	</element>
 	<complexType name="titleListType">
 		<sequence>
+			<element ref="titleType" minOccurs="0" />
 			<element name="title" type="originalTitleType" maxOccurs="unbounded" />
 		</sequence>
 	</complexType>
@@ -64,6 +59,15 @@ var (
 				Type: "titleList",
 				Children: []*xmlTree{
 					&xmlTree{
+						Name:      "titleType",
+						Type:      "string",
+						Cdata:     true,
+						OmitEmpty: true,
+						Attribs: []xmlAttrib{
+							{Name: "language", Type: "string"},
+						},
+					},
+					&xmlTree{
 						Name:  "title",
 						Type:  "string",
 						Cdata: true,
@@ -77,7 +81,13 @@ var (
 			},
 			gosrc: `
 type titleList struct {
-	Title []title ` + "`xml:\"title\"`" + `
+	TitleType *titleType ` + "`xml:\"titleType,omitempty\"`" + `
+	Title     []title ` + "`xml:\"title\"`" + `
+}
+
+type titleType struct {
+	Language  string ` + "`xml:\"language,attr\"`" + `
+	TitleType string ` + "`xml:\",cdata\"`" + `
 }
 
 type title struct {
@@ -258,13 +268,13 @@ func TestGenerateGo(t *testing.T) {
 	for _, tst := range tests {
 		var out bytes.Buffer
 		g := generator{prefix: tst.prefix, exported: tst.exported}
-		g.do(&out, []*xmlTree{&tst.xml})
+		_ = g.do(&out, []*xmlTree{&tst.xml})
 		out = removeComments(out)
 		if strings.Join(strings.Fields(out.String()), "") != strings.Join(strings.Fields(tst.gosrc), "") {
 			t.Errorf("Unexpected generated Go source: %s", tst.xml.Name)
 			t.Logf(out.String())
-			t.Logf(strings.Join(strings.Fields(out.String()), ""))
-			t.Logf(strings.Join(strings.Fields(tst.gosrc), ""))
+			t.Logf(strings.Join(strings.Fields(out.String()), " "))
+			t.Logf(strings.Join(strings.Fields(tst.gosrc), " "))
 		}
 	}
 }

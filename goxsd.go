@@ -65,6 +65,10 @@ func main() {
 
 	if err := gen.do(out, bldr.buildXML()); err != nil {
 		fmt.Println("Code generation failed unexpectedly:", err.Error())
+		if output != "" {
+			out.Close()
+			_ = os.Remove(output)
+		}
 		os.Exit(1)
 	}
 }
@@ -114,9 +118,7 @@ func newBuilder(schemas []xsdSchema) *builder {
 func (b *builder) buildXML() []*xmlTree {
 	var roots []xsdElement
 	for _, s := range b.schemas {
-		for _, e := range s.Elements {
-			roots = append(roots, e)
-		}
+		roots = append(roots, s.Elements...)
 		for _, t := range s.ComplexTypes {
 			b.complTypes[t.Name] = t
 		}
@@ -136,6 +138,9 @@ func (b *builder) buildXML() []*xmlTree {
 // buildFromElement builds an xmlTree from an xsdElement, recursively
 // traversing the XSD type information to build up an XML element hierarchy.
 func (b *builder) buildFromElement(e xsdElement) *xmlTree {
+	if e.Ref != "" {
+		e.Name, e.Type = e.Ref, e.Ref
+	}
 	xelem := &xmlTree{Name: e.Name, Type: e.Name}
 
 	if e.isList() {
